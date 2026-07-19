@@ -1199,8 +1199,8 @@ document.getElementById('btnBriefingContinue').onclick=async ()=>{
   hide('screen-mode-briefing'); show('screen-register');
   document.getElementById('countryPanel').classList.toggle('hidden', gameMode!=='rtg');
   try{
-    const last = await window.storage.get('ffm:last_email', false);
-    if(last && last.value) document.getElementById('emailInput').value = last.value;
+    const last = await personalGet('ffm:last_email');
+    if(last) document.getElementById('emailInput').value = last;
   }catch(e){}
 };
 document.getElementById('btnCopyPix').onclick=()=>{
@@ -1215,28 +1215,56 @@ document.getElementById('btnCopyPix').onclick=()=>{
 let profile=null;
 const OWNER_EMAIL='victor.gssivas1984@gmail.com';
 function storageKey(email){ return `ffm:profile:${email.toLowerCase().trim()}`; }
+const HAS_CLAUDE_STORAGE = (typeof window!=='undefined' && !!window.storage);
+async function personalGet(key){
+  if(HAS_CLAUDE_STORAGE){
+    try{ const r = await window.storage.get(key, false); return r ? r.value : null; }catch(e){ return null; }
+  }
+  try{ return window.localStorage.getItem(key); }catch(e){ return null; }
+}
+async function personalSet(key, value){
+  if(HAS_CLAUDE_STORAGE){
+    try{ await window.storage.set(key, value, false); }catch(e){}
+    return;
+  }
+  try{ window.localStorage.setItem(key, value); }catch(e){}
+}
+const COUNTER_NAMESPACE = 'footballlegendswc';
 async function bumpSharedCounter(key){
+  if(HAS_CLAUDE_STORAGE){
+    try{
+      const cur = await window.storage.get(key, true);
+      const n = cur ? (JSON.parse(cur.value).count||0) : 0;
+      await window.storage.set(key, JSON.stringify({count:n+1}), true);
+      return;
+    }catch(e){ /* analytics é best-effort, nunca trava o jogo */ }
+  }
   try{
-    const cur = await window.storage.get(key, true);
-    const n = cur ? (JSON.parse(cur.value).count||0) : 0;
-    await window.storage.set(key, JSON.stringify({count:n+1}), true);
-  }catch(e){ /* analytics é best-effort, nunca trava o jogo */ }
+    await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${encodeURIComponent(key)}/up`);
+  }catch(e){ /* sem conexão com o contador externo — segue o jogo normalmente */ }
 }
 async function readSharedCounter(key){
+  if(HAS_CLAUDE_STORAGE){
+    try{
+      const cur = await window.storage.get(key, true);
+      return cur ? (JSON.parse(cur.value).count||0) : 0;
+    }catch(e){ return 0; }
+  }
   try{
-    const cur = await window.storage.get(key, true);
-    return cur ? (JSON.parse(cur.value).count||0) : 0;
+    const res = await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${encodeURIComponent(key)}`);
+    const data = await res.json();
+    return data.count || 0;
   }catch(e){ return 0; }
 }
 async function loadProfile(email){
   try{
-    const res = await window.storage.get(storageKey(email), false);
-    return res ? JSON.parse(res.value) : {email, runs:[]};
+    const raw = await personalGet(storageKey(email));
+    return raw ? JSON.parse(raw) : {email, runs:[]};
   }catch(e){ return {email, runs:[]}; }
 }
 async function saveProfile(){
   if(!profile) return;
-  try{ await window.storage.set(storageKey(profile.email), JSON.stringify(profile), false); }
+  try{ await personalSet(storageKey(profile.email), JSON.stringify(profile)); }
   catch(e){ console.error('erro ao salvar progresso', e); }
 }
 function proceedFromRegister(){
@@ -1256,7 +1284,7 @@ document.getElementById('btnGoSetup').onclick=async ()=>{
   document.getElementById('btnGoSetup').disabled=true;
   document.getElementById('btnGoSetup').textContent="Carregando...";
   profile = await loadProfile(email);
-  try{ await window.storage.set('ffm:last_email', email, false); }catch(e){}
+  try{ await personalSet('ffm:last_email', email); }catch(e){}
   document.getElementById('btnGoSetup').disabled=false;
   document.getElementById('btnGoSetup').textContent="Montar minha seleção";
   proceedFromRegister();
