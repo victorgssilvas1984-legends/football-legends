@@ -1,30 +1,29 @@
-// Contador público de entradas/partidas — opção robusta e 100% sua.
-// Requer o addon "Vercel KV" (grátis no plano Hobby): no dashboard do Vercel,
-// vá em Storage -> Create Database -> KV, e conecte ao projeto.
-// Isso injeta automaticamente as env vars que o pacote @vercel/kv usa.
-//
-// Instalação: rode "npm install @vercel/kv" na raiz do projeto antes do deploy
-// (crie um package.json simples se ainda não tiver um).
+import { Redis } from '@upstash/redis';
 
-import { kv } from '@vercel/kv';
+const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
   try {
     const { key, op } = req.query;
+
     if (!key) {
-      res.status(400).json({ error: 'missing key' });
-      return;
+      return res.status(400).json({ error: "missing key" });
     }
+
     const storeKey = `counter:${key}`;
-    if (op === 'up') {
-      const n = await kv.incr(storeKey);
-      res.status(200).json({ count: n });
-      return;
+
+    if (op === "up") {
+      const count = await redis.incr(storeKey);
+      return res.status(200).json({ count });
     }
-    const n = (await kv.get(storeKey)) || 0;
-    res.status(200).json({ count: n });
+
+    const count = (await redis.get(storeKey)) || 0;
+    return res.status(200).json({ count });
+
   } catch (e) {
-    res.status(500).json({ error: 'kv error', detail: String(e) });
+    return res.status(500).json({
+      error: "redis error",
+      detail: String(e)
+    });
   }
 }
-
