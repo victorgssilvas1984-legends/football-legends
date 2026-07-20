@@ -1,2 +1,2 @@
 # football-legends
-Football Legends Fantasy
+Football Legends Fantasy.
