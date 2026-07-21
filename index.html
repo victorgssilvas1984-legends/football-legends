@@ -103,9 +103,15 @@
   .pf-box{position:absolute; left:28%; width:44%; height:15%; border:2px solid rgba(255,255,255,.18);}
   .pf-box.top{top:0; border-top:none;}
   .pf-box.bottom{bottom:0; border-bottom:none;}
-  .pitch-dot{ position:absolute; transform:translate(-50%,-50%); width:15%; min-width:44px; text-align:center; }
+  .pitch-dot{ position:absolute; transform:translate(-50%,-50%); width:17%; min-width:50px; text-align:center; }
   .pitch-dot.blurred .circ{ background:rgba(193,68,60,.45); border-color:var(--crimson); color:#fff; }
   .gtag{ font-size:8px; color:var(--gold); font-weight:700; }
+  .pitch-dot .lbl{ display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:2px; }
+  .pitch-dot .lbl .postag{ font-size:8px; font-weight:800; color:var(--ink); background:var(--gold); padding:0 5px; border-radius:3px; line-height:1.5; }
+  .pitch-dot .lbl .nmtag{ font-size:9px; font-weight:700; color:var(--chalk); background:rgba(15,35,26,.62); backdrop-filter:blur(1px); padding:0 5px; border-radius:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:72px; line-height:1.5; border:1px solid rgba(227,178,60,.18); }
+  .bench-chip .lbl{ display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .bench-chip .lbl .postag{ font-size:7px; font-weight:800; color:var(--ink); background:var(--gold); padding:0 4px; border-radius:2px; }
+  .bench-chip .lbl .nmtag{ font-size:7.5px; font-weight:600; color:var(--chalk); background:rgba(15,35,26,.5); padding:0 4px; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:58px; border:1px solid rgba(227,178,60,.14); }
   .blurred-name{ color:var(--crimson); font-weight:700; }
   .pitch-dot .circ{ width:24px; height:24px; border-radius:50%; margin:0 auto 2px; display:flex; align-items:center; justify-content:center;
     font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:700; border:2px solid rgba(255,255,255,.5); color:rgba(255,255,255,.7); background:rgba(0,0,0,.25); }
@@ -140,6 +146,20 @@
   .tier-label.tier-fenomeno{background:rgba(255,138,61,.18); color:#ff8a3d;}
   .tier-label.tier-genio{background:rgba(79,195,217,.18); color:#4fc3d9;}
   .tier-label.tier-craque{background:rgba(227,178,60,.18); color:#a97c1f;}
+  .motm-overlay{ position:relative; margin-top:14px; padding:16px; border-radius:14px;
+    background:linear-gradient(160deg, rgba(227,178,60,.16), rgba(10,10,10,.55));
+    border:1px solid rgba(227,178,60,.55); text-align:center; animation:motmIn .4s ease-out; }
+  @keyframes motmIn{ from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:none;} }
+  .motm-kicker{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); font-weight:800; margin-bottom:6px; }
+  .motm-star{ font-size:26px; margin-bottom:4px; }
+  .motm-name{ font-size:17px; font-weight:800; color:var(--chalk); }
+  .motm-meta{ font-size:11px; color:var(--chalk-dim); margin-top:2px; }
+  .motm-score{ font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--gold); margin-top:6px; font-weight:700; }
+  .motm-overlay .tier-label{ margin:6px auto 0; }
+  .motm-just{ font-size:12px; color:var(--chalk-dim); margin-top:8px; max-width:280px; margin-left:auto; margin-right:auto; line-height:1.4; }
+  .motm-overlay.motm-opp{ background:linear-gradient(160deg, rgba(193,68,60,.16), rgba(10,10,10,.55)); border-color:rgba(193,68,60,.5); }
+  .motm-overlay.motm-opp .motm-kicker{ color:var(--crimson); }
+
   .tier-tag{font-size:11px; margin-right:2px;}
   .lineup-row.row-divindade{border-left:3px solid #b484ff;}
   .lineup-row.row-fenomeno{border-left:3px solid #ff8a3d;}
@@ -349,6 +369,35 @@
     <div class="mode-card-title">🎬 <span id="modeClassicsTitle">Clássicos</span></div>
     <div class="mode-card-desc" id="modeClassicsDesc">Reviva as finais do Mundial de 1950 a 2026. Escolha um lado e tente vencer todas, uma atrás da outra.</div>
   </div>
+  <div class="panel mode-card" id="modeCardDaily">
+    <div class="mode-card-title">📅 <span id="modeDailyTitle">Desafio do Dia</span></div>
+    <div class="mode-card-desc" id="modeDailyDesc">Monte seu time e vença até 3 níveis contra o país do dia — o mesmo desafio pra todo mundo, resetando amanhã.</div>
+  </div>
+</div>
+
+<div class="screen hidden" id="screen-daily">
+  <div class="brand">FOOTBALL<span> LEGENDS WC</span></div>
+  <div class="subtitle">desafio do dia</div>
+  <div class="stage-label"><span id="dailyCountryFlag"></span> <span id="dailyCountryName"></span></div>
+  <div class="note" style="margin-bottom:10px;">Três níveis contra o país de hoje. Vença um para destravar o próximo. Volta tudo zerado amanhã, com outro país.</div>
+  <div id="dailyTiersList"></div>
+  <button class="btn-secondary" id="btnDailyBackToModes" style="width:100%; margin-top:12px;">Escolher outro modo</button>
+</div>
+
+<div class="screen hidden" id="screen-daily-match">
+  <div class="stage-label" id="dailyMatchTitle">Desafio do Dia</div>
+  <div class="stage-sub" id="dailyMatchSub"></div>
+  <div class="panel-label" style="margin:10px 2px 4px;">Seu adversário</div>
+  <div class="pitch-field" id="dailyOppPitch" style="margin-bottom:10px;"></div>
+  <div id="dailyMatchArea"></div>
+  <button class="btn btn-primary hidden" id="btnPlayDaily">Jogar Desafio</button>
+</div>
+
+<div class="screen hidden" id="screen-daily-result">
+  <div class="champion" id="dailyResultBox"></div>
+  <button class="btn btn-primary hidden" id="btnDailyNext" style="margin-bottom:10px;">Próximo Nível</button>
+  <button class="btn-secondary" id="btnDailyRetry" style="width:100%; margin-bottom:10px;">Tentar de Novo</button>
+  <button class="btn-secondary" id="btnDailyBack" style="width:100%;">Voltar ao Desafio do Dia</button>
 </div>
 
 <div class="screen hidden" id="screen-classic-pick">
@@ -781,7 +830,7 @@ document.querySelectorAll('.lang-btn').forEach(b=>{
 });
 
 function flagBadge(country){ return `<span class="flag-badge">${flag(country)}</span>`; }
-function myFlagEmoji(){ return gameMode==='mundial' ? LEGENDS_EMBLEM : (myCountryPT?flag(myCountryPT):'🏆'); }
+function myFlagEmoji(){ return gameMode==='daily' ? CHALLENGE_STAR : (gameMode==='mundial' ? LEGENDS_EMBLEM : (myCountryPT?flag(myCountryPT):'🏆')); }
 const LEGENDS_EMBLEM = `<svg viewBox="0 0 100 100" width="1em" height="1em" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg">
 <circle cx="50" cy="50" r="40" fill="none" stroke="#c0392b" stroke-width="9" stroke-dasharray="38 214"/>
 <circle cx="50" cy="50" r="40" fill="none" stroke="#e8a33d" stroke-width="9" stroke-dasharray="38 214" transform="rotate(60 50 50)"/>
@@ -791,6 +840,13 @@ const LEGENDS_EMBLEM = `<svg viewBox="0 0 100 100" width="1em" height="1em" styl
 <circle cx="50" cy="50" r="40" fill="none" stroke="#2980b9" stroke-width="9" stroke-dasharray="38 214" transform="rotate(300 50 50)"/>
 <circle cx="50" cy="50" r="29" fill="#12233c"/>
 <path d="M38 34 Q50 28 62 34 Q68 46 62 58 Q50 64 38 58 Q32 46 38 34 Z" fill="#eef2f7" opacity="0.85"/>
+</svg>`;
+const CHALLENGE_STAR = `<svg viewBox="0 0 100 100" width="1em" height="1em" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg">
+<defs><radialGradient id="chStarGrad" cx="50%" cy="42%" r="65%">
+<stop offset="0%" stop-color="#f4d78a"/><stop offset="55%" stop-color="#e3b23c"/><stop offset="100%" stop-color="#a97c1f"/>
+</radialGradient></defs>
+<circle cx="50" cy="50" r="46" fill="#0f231a" opacity="0.35"/>
+<path d="M50 8 L61 38 L93 38 L67 57 L77 88 L50 69 L23 88 L33 57 L7 38 L39 38 Z" fill="url(#chStarGrad)" stroke="#a97c1f" stroke-width="2.5" stroke-linejoin="round"/>
 </svg>`;
 
 const EDITION_KEYS = Object.keys(EDITIONS);
@@ -816,6 +872,146 @@ const FINALS_LIST = (()=>{
   return years.map(y=>({year:y, championKey:champs[y], runnerupKey:runners[y]}));
 })();
 const CRAQUE_THRESHOLD = 93;
+/* ============ DESAFIO DO DIA ============ */
+let dailyTier=1;
+function dailySeedDate(){ return new Date().toISOString().slice(0,10); }
+function seedFromString(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
+const COUNTRIES_WITH_TITLE=[...new Set(CHAMPION_EDITIONS.map(e=>e.country))];
+function getDailyCountry(){
+  const seed=seedFromString(dailySeedDate());
+  return COUNTRIES_WITH_TITLE[seed % COUNTRIES_WITH_TITLE.length];
+}
+function dailyTier1Edition(country){
+  return COUNTRY_TO_EDITIONS[country].map(k=>EDITION_LIST.find(e=>e.key===k)).sort((a,b)=>b.year-a.year)[0];
+}
+function dailyTier2Edition(country){
+  const champs=CHAMPION_EDITIONS.filter(e=>e.country===country);
+  const seed=seedFromString(dailySeedDate()+country);
+  return champs[seed % champs.length];
+}
+function buildDisplayXI(players){
+  const byPos={GOL:[],DEF:[],MEI:[],ATA:[]};
+  players.forEach(p=>{ if(byPos[p[1]]) byPos[p[1]].push(p); });
+  Object.values(byPos).forEach(arr=>arr.sort((a,b)=>b[2]-a[2]));
+  const shapeCounts={GOL:1, DEF:Math.min(4,byPos.DEF.length), MEI:Math.min(3,byPos.MEI.length), ATA:Math.min(3,byPos.ATA.length)};
+  let xi=[];
+  ['GOL','DEF','MEI','ATA'].forEach(pos=>{ xi=xi.concat(byPos[pos].slice(0, shapeCounts[pos])); });
+  // completa até 11 usando quem sobrou (mais bem avaliados), se a formação real não tinha o suficiente numa linha
+  if(xi.length<11){
+    const used=new Set(xi.map(p=>p[0]));
+    const rest=['DEF','MEI','ATA','GOL'].flatMap(pos=>byPos[pos]).filter(p=>!used.has(p[0]));
+    rest.sort((a,b)=>b[2]-a[2]);
+    while(xi.length<11 && rest.length){ xi.push(rest.shift()); }
+  }
+  return xi.slice(0,11);
+}
+function bestAllTimeXI(country){
+  const byName={};
+  COUNTRY_TO_EDITIONS[country].forEach(k=>{
+    EDITIONS[k].players.forEach(p=>{
+      if(!byName[p[0]] || byName[p[0]][2]<p[2]) byName[p[0]]=p;
+    });
+  });
+  return buildDisplayXI(Object.values(byName));
+}
+function dailyTier3Strength(country){
+  const xi=bestAllTimeXI(country);
+  const avg = xi.reduce((a,p)=>a+p[2],0) / (xi.length||1);
+  return Math.min(99, Math.round(avg*1.05));
+}
+function dailyOpponentXI(tier){
+  const country=getDailyCountry();
+  if(tier===1){ const e=dailyTier1Edition(country); return buildDisplayXI(EDITIONS[e.key].players); }
+  if(tier===2){ const e=dailyTier2Edition(country); return buildDisplayXI(EDITIONS[e.key].players); }
+  return bestAllTimeXI(country);
+}
+function dailyOpponent(tier){
+  const country=getDailyCountry();
+  if(tier===1){ const e=dailyTier1Edition(country); return {name:`${countryName(country)} ${e.year}`, flagEmoji:flag(country), strength:e.overall, country}; }
+  if(tier===2){ const e=dailyTier2Edition(country); return {name:`${countryName(country)} ${e.year} · Campeã`, flagEmoji:flag(country), strength:e.overall, country}; }
+  return {name:`${countryName(country)} · Seleção Lendária`, flagEmoji:flag(country), strength:dailyTier3Strength(country), country};
+}
+function renderOpponentPreview(container, xiList){
+  const shape=xiList.map(p=>p[1]);
+  const oc=slotCoords(shape);
+  container.innerHTML=`<div class="pf-mid"></div><div class="pf-circle"></div><div class="pf-box top"></div><div class="pf-box bottom"></div>`;
+  shape.forEach((pos,i)=>{
+    const p=xiList[i];
+    const co=oc[i];
+    const dot=document.createElement('div');
+    dot.className="pitch-dot filled";
+    dot.style.left=co.x+"%"; dot.style.top=co.y+"%";
+    const surname=p[0].split(' ').slice(-1)[0];
+    dot.innerHTML=`<div class="circ" style="background:var(--crimson); border-color:#8a2e26; color:#fff;">${p[2]}</div><div class="lbl"><span class="postag" style="background:#8a2e26;color:#fff;">${p[3]||posLabel(pos)}</span><span class="nmtag">${surname}</span></div>`;
+    container.appendChild(dot);
+  });
+}
+async function loadDailyProgress(){
+  const key=`ffm:daily:${dailySeedDate()}`;
+  try{ const raw=await personalGet(key); return raw?JSON.parse(raw):{}; }catch(e){ return {}; }
+}
+async function saveDailyProgress(p){
+  const key=`ffm:daily:${dailySeedDate()}`;
+  try{ await personalSet(key, JSON.stringify(p)); }catch(e){}
+}
+let dailyProgress={};
+async function renderDailyScreen(){
+  const country=getDailyCountry();
+  dailyProgress = await loadDailyProgress();
+  document.getElementById('dailyCountryFlag').textContent=flag(country);
+  document.getElementById('dailyCountryName').textContent=countryName(country);
+  const tier1Won = dailyProgress.tier1==='win';
+  const tier2Won = dailyProgress.tier2==='win';
+  const rows=[
+    {n:1, label:'Fácil', desc:`vs ${countryName(country)} ${dailyTier1Edition(country).year}`, locked:false, done:tier1Won},
+    {n:2, label:'Médio', desc:`vs ${countryName(country)} campeã`, locked:!tier1Won, done:tier2Won},
+    {n:3, label:'Lendário', desc:`vs Seleção Lendária (melhor XI histórico)`, locked:!tier2Won, done:dailyProgress.tier3==='win'},
+  ];
+  document.getElementById('dailyTiersList').innerHTML = rows.map(r=>`
+    <div class="panel mode-card" data-tier="${r.n}" style="${r.locked?'opacity:.45;pointer-events:none;':'cursor:pointer;'}">
+      <div class="mode-card-title">${r.done?'✅':(r.locked?'🔒':'⚔️')} ${r.label}</div>
+      <div class="mode-card-desc">${r.desc}</div>
+    </div>`).join('');
+  document.querySelectorAll('#dailyTiersList [data-tier]').forEach(el=>{
+    el.onclick=()=>{
+      const n=parseInt(el.getAttribute('data-tier'),10);
+      dailyTier=n; gameMode='daily';
+      hide('screen-daily'); show('screen-register');
+      document.getElementById('countryPanel').classList.add('hidden');
+    };
+  });
+}
+function startDailyMatch(){
+  const opp=dailyOpponent(dailyTier);
+  const oppXI=dailyOpponentXI(dailyTier);
+  opp.players=oppXI;
+  const tierNames={1:'Fácil',2:'Médio',3:'Lendário'};
+  document.getElementById('dailyMatchTitle').textContent=`Desafio do Dia · Nível ${tierNames[dailyTier]}`;
+  document.getElementById('dailyMatchSub').textContent=`contra ${opp.name}`;
+  renderOpponentPreview(document.getElementById('dailyOppPitch'), oppXI);
+  document.getElementById('dailyMatchArea').innerHTML=''; // limpa qualquer resquício da partida/homem da partida anterior
+  hide('screen-squad'); hide('screen-daily-result'); show('screen-daily-match');
+  const btn=document.getElementById('btnPlayDaily');
+  btn.classList.remove('hidden');
+  btn.onclick=(e)=>{
+    e.target.classList.add('hidden');
+    const container=document.getElementById('dailyMatchArea');
+    prepareForMatch(container, ()=>{
+      const me={name:teamName, flagEmoji:myFlagEmoji(), strength:currentTeamStrength()};
+      const stadium=(STADIUMS_BY_YEAR[dailyTier1Edition(opp.country).year]||{}).final;
+      playFullMatch(me, opp, container, (gA,gB,pens)=>{
+        const won=(pens!==null && pens!==undefined) ? pens : gA>gB;
+        dailyProgress['tier'+dailyTier]=won?'win':'lose';
+        saveDailyProgress(dailyProgress);
+        hide('screen-daily-match'); show('screen-daily-result');
+        const nextAvailable = won && dailyTier<3;
+        document.getElementById('dailyResultBox').innerHTML=`<div class="cup">${won?'🏆':'😔'}</div><h2>${won?'Vitória!':'Derrota'}</h2><p>${won?`Venceu`:`Perdeu para`} ${opp.name} ${pens!==null&&pens!==undefined?'nos pênaltis':`por ${gA} a ${gB}`}.</p>`;
+        document.getElementById('btnDailyNext').classList.toggle('hidden', !nextAvailable);
+      }, true, stadium);
+    });
+  };
+}
+
 
 /* categorias especiais de craques históricos */
 const TIER_LISTS = {
@@ -851,7 +1047,9 @@ function penaltyFor(nativePos, slotPos, nativeScore){
   return 0.30;
 }
 function effScore(p){
-  return Math.max(20, Math.round(p.nativeScore*(1-penaltyFor(p.nativePos, p.slotPos, p.nativeScore))));
+  const base = Math.round(p.nativeScore*(1-penaltyFor(p.nativePos, p.slotPos, p.nativeScore)));
+  const mod = (typeof formMod!=='undefined' && formMod[p.name]) || 0;
+  return Math.max(20, base + mod);
 }
 /* sorteio: 7 em cada 10 chamadas vêm de seleções semifinalistas/campeãs; 3 são livres */
 function pickEditionKeyForReveal(){
@@ -1234,6 +1432,8 @@ function showBriefing(mode){
 document.getElementById('modeCardMundial').onclick=()=>showBriefing('mundial');
 document.getElementById('modeCardRTG').onclick=()=>showBriefing('rtg');
 document.getElementById('modeCardClassics').onclick=()=>showBriefing('classics');
+document.getElementById('modeCardDaily').onclick=()=>{ hide('screen-mode-select'); renderDailyScreen(); show('screen-daily'); };
+document.getElementById('btnDailyBackToModes').onclick=()=>{ hide('screen-daily'); show('screen-mode-select'); };
 document.getElementById('btnBriefingBack').onclick=()=>{ hide('screen-mode-briefing'); show('screen-mode-select'); };
 document.getElementById('btnBriefingContinue').onclick=async ()=>{
   hide('screen-mode-briefing'); show('screen-register');
@@ -1352,6 +1552,9 @@ document.getElementById('btnLoadOwnerStats').onclick=async ()=>{
 document.getElementById('btnDashNewTeam').onclick=()=>{ hide('screen-dashboard'); show('screen-setup'); };
 document.getElementById('btnGoDashFromOut').onclick=()=>{ hide('screen-out'); renderDashboard(); show('screen-dashboard'); };
 document.getElementById('btnGoDashFromWin').onclick=()=>{ hide('screen-champion'); renderDashboard(); show('screen-dashboard'); };
+document.getElementById('btnDailyNext').onclick=()=>{ dailyTier+=1; hide('screen-daily-result'); startDailyMatch(); };
+document.getElementById('btnDailyRetry').onclick=()=>{ hide('screen-daily-result'); startDailyMatch(); };
+document.getElementById('btnDailyBack').onclick=()=>{ hide('screen-daily-result'); renderDailyScreen(); show('screen-daily'); };
 
 function renderDashboard(){
   document.getElementById('dashEmailLabel').textContent = profile ? profile.email : "seu dashboard";
@@ -1426,7 +1629,7 @@ renderChoiceGrids();
 function checkReady(){ document.getElementById('btnBeginDraft').disabled = !selectedFormation; }
 document.getElementById('btnBeginDraft').onclick=()=>{
   BENCH_SIZE = 3;
-  teamName = gameMode==='mundial' ? 'Legends' : `${countryName(myCountryPT)} Legends`;
+  teamName = gameMode==='daily' ? 'Challenge' : (gameMode==='mundial' ? 'Legends' : `${countryName(myCountryPT)} Legends`);
   startDraft(selectedFormation);
 };
 
@@ -1503,7 +1706,7 @@ function renderPitch(container, interactive){
     dot.style.left=c.x+"%"; dot.style.top=c.y+"%";
     if(p){
       const surname=p.name.split(' ').slice(-1)[0];
-      dot.innerHTML=`<div class="circ">${effScore(p)}</div><div class="lbl">${p.nativeGranular?`<span class="gtag">${p.nativeGranular}</span> `:''}${surname}</div>`;
+      dot.innerHTML=`<div class="circ">${effScore(p)}</div><div class="lbl"><span class="postag">${p.nativeGranular || posLabel(p.slotPos)}</span><span class="nmtag">${surname}</span></div>`;
     } else {
       dot.innerHTML=`<div class="circ">${posLabel(slotPos)}</div>`;
     }
@@ -1528,7 +1731,7 @@ function renderBenchStrip(container){
   (benchSlots||[]).forEach(p=>{
     const chip=document.createElement('div');
     chip.className="bench-chip";
-    if(p){ chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl">${p.granular?`<span class="gtag">${p.granular}</span> `:''}${p.name.split(' ').slice(-1)[0]}</div>`; }
+    if(p){ chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl"><span class="postag">${p.granular || posLabel(p.pos)}</span><span class="nmtag">${p.name.split(' ').slice(-1)[0]}</span></div>`; }
     else { chip.innerHTML=`<div class="circ">?</div><div class="lbl">banco</div>`; }
     container.appendChild(chip);
   });
@@ -1660,7 +1863,7 @@ function showSquadScreen(){
   document.getElementById('overallLbl').textContent=`${teamName} · ${formation.name} · ${selectedDisposition.name} / ${selectedStyle.name}`;
   document.getElementById('btnStartCup').textContent = gameMode==='rtg'
     ? (lang==='pt'?'Disputar as Eliminatórias':(lang==='en'?'Play the Qualifiers':(lang==='fr'?'Disputer les Éliminatoires':'Disputar las Eliminatorias')))
-    : t('startCup');
+    : (gameMode==='daily' ? 'Jogar Desafio' : t('startCup'));
   renderSquadPitch();
   renderSquadBench();
   renderLineupAndBenchLists();
@@ -1704,7 +1907,7 @@ function renderSquadPitch(){
     dot.className="pitch-dot filled clickable"+((squadSelected&&squadSelected.type==='start'&&squadSelected.idx===i)?" sel":"")+((p.nativePos!==p.slotPos)?" offpos":"");
     dot.style.left=co.x+"%"; dot.style.top=co.y+"%";
     const surname=p.name.split(' ').slice(-1)[0];
-    dot.innerHTML=`<div class="circ">${effScore(p)}</div><div class="lbl">${p.nativeGranular?`<span class="gtag">${p.nativeGranular}</span> `:''}${surname}</div>`;
+    dot.innerHTML=`<div class="circ">${effScore(p)}</div><div class="lbl"><span class="postag">${p.nativeGranular || posLabel(p.slotPos)}</span><span class="nmtag">${surname}</span></div>`;
     dot.onclick=()=>onSquadDotClick('start', i);
     c.appendChild(dot);
   });
@@ -1715,7 +1918,7 @@ function renderSquadBench(){
   benchSlots.forEach((p,i)=>{
     const chip=document.createElement('div');
     chip.className="bench-chip clickable"+((squadSelected&&squadSelected.type==='bench'&&squadSelected.idx===i)?" sel":"");
-    chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl">${p.granular?`<span class="gtag">${p.granular}</span> `:''}${p.name.split(' ').slice(-1)[0]}</div>`;
+    chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl"><span class="postag">${p.granular || posLabel(p.pos)}</span><span class="nmtag">${p.name.split(' ').slice(-1)[0]}</span></div>`;
     chip.onclick=()=>onSquadDotClick('bench', i);
     b.appendChild(chip);
   });
@@ -1745,6 +1948,7 @@ function onSquadDotClick(type, idx){
 /* ============ TORNEIO ============ */
 let myStrength, myGroup, groupIdx, koStageIndex, goalTally, motmTally, runGoalsFor, runGoalsAgainst;
 let canonicalFormation, canonicalFilled, canonicalBench, suspended;
+let formMod={}, injuredOut={};
 function resetToCanonical(){
   formation=canonicalFormation;
   coords=slotCoords(formation.slots);
@@ -1755,16 +1959,21 @@ function currentTeamStrength(){
   return Math.round(filledSlots.reduce((a,p)=>a+effScore(p),0)/filledSlots.length);
 }
 function pendingSuspensions(){
-  return filledSlots.map((p,i)=>({p,i})).filter(x=>x.p && suspended.has(x.p.name));
+  return filledSlots.map((p,i)=>({p,i})).filter(x=>x.p && (suspended.has(x.p.name) || (injuredOut[x.p.name]>0)));
 }
 function renderSuspensionForcedPanel(container, pendingList, onResolved){
   container.innerHTML="";
   const box=document.createElement('div');
   box.className="sub-panel";
-  let rows=`<div class="sub-title">🟥 Suspenso(s) por cartão vermelho — escolha quem entra no lugar</div>`;
+  const anyInjured = pendingList.some(({p})=>injuredOut[p.name]>0);
+  const anyCard = pendingList.some(({p})=>suspended.has(p.name));
+  const titleIcon = anyInjured && anyCard ? '🟥🤕' : (anyInjured ? '🤕' : '🟥');
+  let rows=`<div class="sub-title">${titleIcon} Fora da partida — escolha quem entra no lugar</div>`;
   pendingList.forEach(({p,i})=>{
+    const isInjured = injuredOut[p.name]>0;
+    const tag = isInjured ? `lesionado — falta ${injuredOut[p.name]} partida${injuredOut[p.name]>1?'s':''}` : 'suspenso';
     const options=benchSlots.map((b,bi)=> b? `<option value="${bi}">${b.name} (${b.pos}, ${b.score})</option>` : '').join('');
-    rows+=`<div class="sub-row"><span>${p.slotPos} · <span class="blurred-name">${p.name}</span> (suspenso)</span>
+    rows+=`<div class="sub-row"><span>${p.slotPos} · <span class="blurred-name">${p.name}</span> (${tag})</span>
       <select class="sub-select" data-idx="${i}"><option value="">escolher…</option>${options}</select></div>`;
   });
   rows+=`<button class="btn btn-primary" id="btnConfirmSusp" style="margin-top:10px;">${t('confirmSusp')}</button>`;
@@ -1775,7 +1984,7 @@ function renderSuspensionForcedPanel(container, pendingList, onResolved){
     const chosen=new Set();
     for(const sel of selects){
       const bi=parseInt(sel.value,10);
-      if(isNaN(bi) || chosen.has(bi)){ alert('Escolha um reserva diferente para cada suspenso.'); return; }
+      if(isNaN(bi) || chosen.has(bi)){ alert('Escolha um reserva diferente para cada jogador fora.'); return; }
       chosen.add(bi);
     }
     selects.forEach(sel=>{
@@ -1785,6 +1994,10 @@ function renderSuspensionForcedPanel(container, pendingList, onResolved){
       filledSlots[idx]={name:inP.name, nativeScore:inP.score, nativePos:inP.pos, slotPos:outP.slotPos, country:inP.country, year:inP.year};
       benchSlots[bi]={name:outP.name, score:outP.nativeScore, pos:outP.nativePos, country:outP.country, year:outP.year};
       suspended.delete(outP.name);
+      if(injuredOut[outP.name]>0){
+        injuredOut[outP.name]-=1;
+        if(injuredOut[outP.name]<=0) delete injuredOut[outP.name];
+      }
     });
     onResolved();
   };
@@ -1830,12 +2043,13 @@ document.getElementById('btnStartCup').onclick=()=>{
   canonicalFormation=formation;
   canonicalFilled=filledSlots.map(p=>({...p}));
   canonicalBench=benchSlots.map(p=>p?{...p}:null);
-  suspended=new Set();
+  suspended=new Set(); formMod={}; injuredOut={};
   goalTally={}; motmTally={}; runGoalsFor=0; runGoalsAgainst=0;
   journeyLog=[];
   pickCampaignStadiumEdition();
   if(gameMode==='rtg'){ startQualifiers(); }
   else if(gameMode==='classics'){ showClassicMatchScreen(); }
+  else if(gameMode==='daily'){ startDailyMatch(); }
   else { beginWorldCupGroupStage(); }
 };
 function beginWorldCupGroupStage(){
@@ -1930,11 +2144,11 @@ function chooseClassicSide(side){
   buildSquadFromEdition(myKey);
   teamName=`${countryName(myEd.country)} ${myEd.year}`;
   myCountryPT=myEd.country;
-  classicOpponent={name:`${countryName(oppEd.country)} ${oppEd.year}`, flagEmoji:flag(oppEd.country), strength:0};
+  classicOpponent={name:`${countryName(oppEd.country)} ${oppEd.year}`, flagEmoji:flag(oppEd.country), strength:0, players:buildDisplayXI(oppEd.players)};
   myStrength=Math.round(filledSlots.reduce((a,p)=>a+effScore(p),0)/filledSlots.length);
   classicOpponent.strength=relativeOpponentStrength(myStrength, 'classics', 6);
   canonicalFormation=formation; canonicalFilled=filledSlots.map(p=>({...p})); canonicalBench=benchSlots.map(p=>p?{...p}:null);
-  suspended=new Set(); goalTally={}; motmTally={}; runGoalsFor=0; runGoalsAgainst=0;
+  suspended=new Set(); formMod={}; injuredOut={}; goalTally={}; motmTally={}; runGoalsFor=0; runGoalsAgainst=0;
   hide('screen-classic-pick'); showSquadScreen();
   document.getElementById('btnStartCup').textContent = lang==='pt'?'Jogar a Final':(lang==='en'?'Play the Final':(lang==='fr'?'Jouer la Finale':'Jugar la Final'));
 }
@@ -2077,7 +2291,7 @@ document.getElementById('btnPlayNextQual').onclick=()=>{
     const pos=ranked.findIndex(t=>t.isMe);
     if(pos<qualFormat.direct){
       logJourney(`Classificado direto nas eliminatórias em ${pos+1}º lugar! Rumo ao Mundial.`);
-      suspended=new Set();
+      suspended=new Set(); formMod={}; injuredOut={};
       beginWorldCupGroupStage();
     } else if(qualFormat.playoff && pos===qualFormat.direct){
       logJourney(`Terminou em ${pos+1}º — foi pra repescagem intercontinental.`);
@@ -2113,7 +2327,7 @@ function playQualifyingPlayoff(){
       const won = (pens!==null && pens!==undefined) ? pens : gA>gB;
       if(won){
         logJourney(`Repescagem: Vitória vs ${opp.name} — classificado pro Mundial!`);
-        suspended=new Set();
+        suspended=new Set(); formMod={}; injuredOut={};
         beginWorldCupGroupStage();
       } else {
         logJourney(`Repescagem: Derrota vs ${opp.name} — fim da jornada.`);
@@ -2304,6 +2518,62 @@ function pickMOTM(exclude){
   if(pool.length===0) return filledSlots[0].name;
   return weightedPick(pool.map(p=>({name:p.name, w:Math.pow(effScore(p),2)})));
 }
+const MOTM_TEMPLATES = {
+  scorer: {
+    ATA: ["decidiu o jogo com {g} gol(s)", "fez {g} gol(s) e foi o nome da partida", "balançou as redes {g} vez(es) e comandou o ataque"],
+    MEI: ["além de marcar {g} gol(s), armou as principais jogadas", "{g} gol(s) direto do meio-campo, com presença o jogo todo"],
+    DEF: ["surpreendeu com {g} gol(s) de defensor, decisivo nos dois lados", "marcou {g} gol(s) sem descuidar da marcação"],
+    GOL: ["decidiu no detalhe, com {g} contribuição(ões) rara(s) para um goleiro"],
+  },
+  winNoScore: {
+    GOL: ["não sofreu gol e foi seguro em todas as bolas que pegou", "segurou o resultado com defesas importantes"],
+    DEF: ["zaga sólida, sem sustos, sustentando a vitória", "anulou as jogadas mais perigosas do adversário"],
+    MEI: ["comandou o meio-campo e ditou o ritmo da vitória", "organizou o time e não deu espaço pro adversário reagir"],
+    ATA: ["deu trabalho à defesa adversária o jogo inteiro", "levou perigo constante, mesmo sem balançar a rede"],
+  },
+  lossOrDrawNoScore: {
+    GOL: ["impediu um placar ainda pior com boas defesas", "foi um dos poucos destaques numa partida difícil"],
+    DEF: ["foi um dos poucos pontos positivos numa defesa que sofreu", "resistiu bem apesar da pressão adversária"],
+    MEI: ["tentou organizar o time mesmo com o jogo difícil", "foi quem mais lutou pela bola no meio-campo"],
+    ATA: ["criou as chances mais claras, mesmo sem concluir", "não faltou empenho, mesmo sem o resultado"],
+  },
+};
+function motmJustification(macro, goals, isWinnerSide, isDraw){
+  const bucket = goals>0 ? MOTM_TEMPLATES.scorer : (isWinnerSide && !isDraw ? MOTM_TEMPLATES.winNoScore : MOTM_TEMPLATES.lossOrDrawNoScore);
+  const arr = bucket[macro] || bucket.MEI || bucket.ATA;
+  const txt = arr[Math.floor(Math.random()*arr.length)];
+  return txt.replace('{g}', goals);
+}
+function buildMatchMOTM(scoreA, scoreB, sentOffSet, teamB, matchGoalsMine, matchGoalsOpp){
+  const myWon = scoreA>scoreB, oppWon = scoreB>scoreA, isDraw = scoreA===scoreB;
+  const mineCandidates = filledSlots.filter(p=>!sentOffSet.has(p.name)).map(p=>({
+    name:p.name, macro:p.slotPos, nativeScore:p.nativeScore, nativeGranular:p.nativeGranular,
+    country:p.country, year:p.year, side:'mine',
+  }));
+  const oppCandidates = (teamB.players||[]).map(p=>({
+    name:p[0], macro:p[1], nativeScore:p[2], nativeGranular:p[3], side:'opp',
+  }));
+  const all = mineCandidates.concat(oppCandidates);
+  if(!all.length) return null;
+  const weights = all.map(cand=>{
+    const goals = cand.side==='mine' ? (matchGoalsMine[cand.name]||0) : (matchGoalsOpp[cand.name]||0);
+    const isWinnerSide = cand.side==='mine' ? myWon : oppWon;
+    let w = Math.pow(Math.max(20,cand.nativeScore), 1.3) * (1+goals*2.2);
+    if(!isDraw) w *= isWinnerSide ? 1.55 : 0.55;
+    if(cand.macro==='GOL'){
+      const cleanSheet = cand.side==='mine' ? scoreB===0 : scoreA===0;
+      if(cleanSheet) w *= 2.0;
+    }
+    return {name:cand.name, w};
+  });
+  const pickedName = weightedPick(weights);
+  const cand = all.find(c=>c.name===pickedName) || all[0];
+  const goals = cand.side==='mine' ? (matchGoalsMine[cand.name]||0) : (matchGoalsOpp[cand.name]||0);
+  const isWinnerSide = cand.side==='mine' ? myWon : oppWon;
+  cand.justification = motmJustification(cand.macro, goals, isWinnerSide, isDraw);
+  cand.tier = playerTier(cand.name, cand.nativeScore);
+  return cand;
+}
 function weightedCardTarget(exclude){
   const pool=availableSlots(exclude);
   if(pool.length===0) return filledSlots[0].name;
@@ -2337,6 +2607,30 @@ function teamAStrengthNow(redPenalty, sentOffSet){
   const sum = filledSlots.reduce((a,p)=> a + ((sentOffSet && sentOffSet.has(p.name)) ? 0 : effScore(p)), 0);
   return Math.max(50, Math.round(sum/filledSlots.length) - redPenalty);
 }
+function injuryEventsFor(phaseName, exclude){
+  if(!(gameMode==='mundial' || gameMode==='rtg')) return [];
+  if(Object.keys(injuredOut).length>0) return []; // já tem alguém se recuperando — mantém eventual, nunca simultâneo
+  if(Math.random()>0.045) return [];
+  const pool=filledSlots.filter(p=>p.slotPos!=='GOL' && !(exclude&&exclude.has(p.name)));
+  if(!pool.length) return [];
+  const victim=rand(pool.map(p=>p.name));
+  const min = phaseName==='first' ? randInt(12,44) : randInt(50,88);
+  return [{kind:'injury', min, name:victim}];
+}
+function applyFatigueDrift(){
+  if(!(gameMode==='mundial' || gameMode==='rtg')) return;
+  if(Math.random()>0.35) return; // eventual — nem toda partida mexe em alguém
+  const pool=filledSlots.filter(p=>p.slotPos!=='GOL');
+  if(!pool.length) return;
+  const target=rand(pool.map(p=>p.name));
+  const cur=formMod[target]||0;
+  if(Math.random()<0.70){
+    formMod[target]=Math.max(-8, cur-randInt(2,5));
+  } else {
+    formMod[target]=Math.min(6, cur+randInt(2,4));
+  }
+}
+
 function buildGoalEventsForSide(n, range, side){
   const evs=[];
   for(let i=0;i<n;i++){
@@ -2380,6 +2674,70 @@ function applyFormationChange(newFormation){
   while(benchSlots.length<BENCH_SIZE) benchSlots.push(null);
 }
 
+function renderInjurySubPanel(wrap, injuredName, subsTracker, onContinue){
+  const panel=document.createElement('div');
+  panel.className="sub-panel";
+  const canSub = subsTracker.used<subsTracker.max;
+  panel.innerHTML = `
+    <div class="sub-title">🤕 ${injuredName} pediu pra sair — ${canSub?'escolha um reserva pra entrar no lugar dele, ou continue sem substituir.':'sem substituições disponíveis — o time segue com um a menos nessa função.'}</div>
+    <div class="pitch-field" id="injPitch" style="margin:8px 0;"></div>
+    <div class="bench-strip" id="injBench"></div>
+    <div class="note" id="injNote">Pode continuar quando quiser.</div>
+    <button class="btn btn-primary" id="btnContinueInj" style="margin-top:12px;">Continuar partida</button>
+  `;
+  wrap.appendChild(panel);
+  let selected=null;
+  function renderInjPitch(){
+    const c=panel.querySelector('#injPitch');
+    c.innerHTML = `<div class="pf-mid"></div><div class="pf-circle"></div><div class="pf-box top"></div><div class="pf-box bottom"></div>`;
+    formation.slots.forEach((pos,i)=>{
+      const co=coords[i];
+      const p=filledSlots[i];
+      const isHurt = p.name===injuredName;
+      const dot=document.createElement('div');
+      dot.className="pitch-dot filled clickable"+(isHurt?" blurred":"")+((selected&&selected.type==='start'&&selected.idx===i)?" sel":"");
+      dot.style.left=co.x+"%"; dot.style.top=co.y+"%";
+      const surname=p.name.split(' ').slice(-1)[0];
+      dot.innerHTML=`<div class="circ">${isHurt?'🤕':effScore(p)}</div><div class="lbl"><span class="postag">${p.nativeGranular || posLabel(p.slotPos)}</span><span class="nmtag">${surname}</span></div>`;
+      if(p.nativePos!==p.slotPos) dot.classList.add('offpos');
+      dot.onclick=()=>onInjDotClick('start', i);
+      c.appendChild(dot);
+    });
+  }
+  function renderInjBench(){
+    const b=panel.querySelector('#injBench');
+    b.innerHTML="";
+    benchSlots.forEach((p,i)=>{
+      if(!p){ return; }
+      const chip=document.createElement('div');
+      chip.className="bench-chip clickable"+((selected&&selected.type==='bench'&&selected.idx===i)?" sel":"");
+      chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl"><span class="postag">${p.granular || posLabel(p.pos)}</span><span class="nmtag">${p.name.split(' ').slice(-1)[0]}</span></div>`;
+      chip.onclick=()=>onInjDotClick('bench', i);
+      b.appendChild(chip);
+    });
+  }
+  function onInjDotClick(type, idx){
+    if(type==='start' && filledSlots[idx].name!==injuredName){ return; } // só o lesionado pode ser trocado aqui
+    if(!subsTracker || subsTracker.used>=subsTracker.max){
+      panel.querySelector('#injNote').textContent = `Limite de ${subsTracker.max} substituições atingido.`;
+      return;
+    }
+    if(!selected){ selected={type,idx}; renderInjPitch(); renderInjBench(); return; }
+    if(selected.type===type && selected.idx===idx){ selected=null; renderInjPitch(); renderInjBench(); return; }
+    const startIdx = selected.type==='start' ? selected.idx : idx;
+    const benchIdx = selected.type==='bench' ? selected.idx : idx;
+    const sp=filledSlots[startIdx], bp=benchSlots[benchIdx];
+    if(!bp){ selected=null; return; }
+    filledSlots[startIdx]={name:bp.name, nativeScore:bp.score, nativePos:bp.pos, nativeGranular:bp.granular, slotPos:sp.slotPos, country:bp.country, year:bp.year};
+    benchSlots[benchIdx]={name:sp.name, score:sp.nativeScore, pos:sp.nativePos, granular:sp.nativeGranular, country:sp.country, year:sp.year};
+    subsTracker.used++;
+    selected=null;
+    panel.querySelector('#injNote').textContent = 'Substituição feita — pode continuar.';
+    renderInjPitch(); renderInjBench();
+  }
+  renderInjPitch(); renderInjBench();
+  panel.querySelector('#btnContinueInj').onclick=()=>{ panel.remove(); onContinue(); };
+}
 function renderGoalkeeperEmergencyPanel(wrap, sentOffSet, subsTracker, onContinue){
   const panel=document.createElement('div');
   panel.className="sub-panel";
@@ -2412,7 +2770,7 @@ function renderGoalkeeperEmergencyPanel(wrap, sentOffSet, subsTracker, onContinu
       dot.className="pitch-dot filled clickable"+(isOff?" blurred":"")+((selected&&selected.type==='start'&&selected.idx===i)?" sel":"");
       dot.style.left=co.x+"%"; dot.style.top=co.y+"%";
       const surname=p.name.split(' ').slice(-1)[0];
-      dot.innerHTML=`<div class="circ">${isOff?'🟥':effScore(p)}</div><div class="lbl">${p.nativeGranular?`<span class="gtag">${p.nativeGranular}</span> `:''}${surname}</div>`;
+      dot.innerHTML=`<div class="circ">${isOff?'🟥':effScore(p)}</div><div class="lbl"><span class="postag">${p.nativeGranular || posLabel(p.slotPos)}</span><span class="nmtag">${surname}</span></div>`;
       if(p.nativePos!==p.slotPos) dot.classList.add('offpos');
       dot.onclick=()=>onGkDotClick('start', i);
       c.appendChild(dot);
@@ -2424,7 +2782,7 @@ function renderGoalkeeperEmergencyPanel(wrap, sentOffSet, subsTracker, onContinu
     benchSlots.forEach((p,i)=>{
       const chip=document.createElement('div');
       chip.className="bench-chip clickable"+((selected&&selected.type==='bench'&&selected.idx===i)?" sel":"");
-      chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl">${p.granular?`<span class="gtag">${p.granular}</span> `:''}${p.name.split(' ').slice(-1)[0]}</div>`;
+      chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl"><span class="postag">${p.granular || posLabel(p.pos)}</span><span class="nmtag">${p.name.split(' ').slice(-1)[0]}</span></div>`;
       chip.onclick=()=>onGkDotClick('bench', i);
       b.appendChild(chip);
     });
@@ -2496,7 +2854,7 @@ function renderHalftimePanel(wrap, sentOffSet, subsTracker, onContinue){
       dot.className="pitch-dot filled clickable"+(isOff?" blurred":"")+((selected&&selected.type==='start'&&selected.idx===i)?" sel":"");
       dot.style.left=co.x+"%"; dot.style.top=co.y+"%";
       const surname=p.name.split(' ').slice(-1)[0];
-      dot.innerHTML=`<div class="circ">${isOff?'🟥':effScore(p)}</div><div class="lbl">${p.nativeGranular?`<span class="gtag">${p.nativeGranular}</span> `:''}${surname}</div>`;
+      dot.innerHTML=`<div class="circ">${isOff?'🟥':effScore(p)}</div><div class="lbl"><span class="postag">${p.nativeGranular || posLabel(p.slotPos)}</span><span class="nmtag">${surname}</span></div>`;
       if(p.nativePos!==p.slotPos) dot.classList.add('offpos');
       dot.onclick=()=>onDotClick('start', i);
       c.appendChild(dot);
@@ -2508,7 +2866,7 @@ function renderHalftimePanel(wrap, sentOffSet, subsTracker, onContinue){
     benchSlots.forEach((p,i)=>{
       const chip=document.createElement('div');
       chip.className="bench-chip clickable"+((selected&&selected.type==='bench'&&selected.idx===i)?" sel":"");
-      chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl">${p.granular?`<span class="gtag">${p.granular}</span> `:''}${p.name.split(' ').slice(-1)[0]}</div>`;
+      chip.innerHTML=`<div class="circ">${p.score}</div><div class="lbl"><span class="postag">${p.granular || posLabel(p.pos)}</span><span class="nmtag">${p.name.split(' ').slice(-1)[0]}</span></div>`;
       chip.onclick=()=>onDotClick('bench', i);
       b.appendChild(chip);
     });
@@ -2621,10 +2979,12 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
   let redPenalty=0;
   let manDownMult=1;
   let sentOff=new Set();
+  let injuredThisMatch=new Set();
+  let matchGoalsMine={}, matchGoalsOpp={};
   const subsTracker={used:0, max:3};
 
   const [fhA,fhB]=simulateSegment(teamA.strength, teamB.strength, mods, 0.55);
-  let events=[...goalEventsFor(fhA,fhB,[1,45]), ...cardEventsFor('first', sentOff)].sort((a,b)=>a.min-b.min);
+  let events=[...goalEventsFor(fhA,fhB,[1,45]), ...cardEventsFor('first', sentOff), ...injuryEventsFor('first', sentOff)].sort((a,b)=>a.min-b.min);
 
   const wrap=document.createElement('div');
   wrap.className="live-match";
@@ -2652,11 +3012,12 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
       const p=filledSlots[i];
       const dot=document.createElement('div');
       const isOff=p && sentOff.has(p.name);
-      dot.className="pitch-dot filled"+(isOff?" blurred":"");
+      const isHurt=p && injuredThisMatch.has(p.name);
+      dot.className="pitch-dot filled"+((isOff||isHurt)?" blurred":"");
       dot.style.left=co.x+"%"; dot.style.top=co.y+"%";
       if(p){
         const surname=p.name.split(' ').slice(-1)[0];
-        dot.innerHTML=`<div class="circ">${isOff?'🟥':effScore(p)}</div><div class="lbl">${p.nativeGranular?`<span class="gtag">${p.nativeGranular}</span> `:''}${surname}</div>`;
+        dot.innerHTML=`<div class="circ">${isHurt?'🤕':(isOff?'🟥':effScore(p))}</div><div class="lbl"><span class="postag">${p.nativeGranular || posLabel(p.slotPos)}</span><span class="nmtag">${surname}</span></div>`;
       }
       c.appendChild(dot);
     });
@@ -2703,10 +3064,28 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
       if(ev.side==='A'){
         scoreA++; wrap.querySelector('#lsA').textContent=scoreA;
         const scorer=pickScorer(sentOff); goalTally[scorer]=(goalTally[scorer]||0)+1;
+        matchGoalsMine[scorer]=(matchGoalsMine[scorer]||0)+1;
         logEvent(`${prefix}⚽ Gol${ev.penalty?' de pênalti':''} de ${scorer} (${teamA.name}) aos ${ev.min}'`, 'goal');
       } else {
         scoreB++; wrap.querySelector('#lsB').textContent=scoreB;
-        logEvent(`${prefix}⚽ Gol${ev.penalty?' de pênalti':''} ${teamB.name} aos ${ev.min}'`, 'goal');
+        if(teamB.players && teamB.players.length){
+          const oppScorer=weightedPick(teamB.players.map(p=>({name:p[0], w:({GOL:0.15,DEF:1,MEI:2,ATA:4}[p[1]]||1)*(p[2]/70)})));
+          matchGoalsOpp[oppScorer]=(matchGoalsOpp[oppScorer]||0)+1;
+          logEvent(`${prefix}⚽ Gol${ev.penalty?' de pênalti':''} de ${oppScorer} (${teamB.name}) aos ${ev.min}'`, 'goal');
+        } else {
+          logEvent(`${prefix}⚽ Gol${ev.penalty?' de pênalti':''} ${teamB.name} aos ${ev.min}'`, 'goal');
+        }
+      }
+    } else if(ev.kind==='injury'){
+      logEvent(`🤕 ${ev.name} sente dores e pede pra sair aos ${ev.min}'`, 'card-red');
+      injuredThisMatch.add(ev.name);
+      renderLiveMatchPitch();
+      if(timer){
+        clearInterval(timer); timer=null;
+        renderInjurySubPanel(wrap, ev.name, subsTracker, ()=>{
+          renderLiveMatchPitch();
+          timer=setInterval(tick, matchSpeedMs);
+        });
       }
     } else {
       const icon = ev.type==='red' ? '🟥' : '🟨';
@@ -2742,9 +3121,9 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
   function startHalftime(){
     logEvent("⏸️ Intervalo — hora dos ajustes.");
     renderHalftimePanel(wrap, sentOff, subsTracker, ()=>{
-      const strength2=teamAStrengthNow(redPenalty, sentOff);
+      const strength2=teamAStrengthNow(redPenalty, new Set([...sentOff, ...injuredThisMatch]));
       const [shA,shB]=simulateSegment(strength2, teamB.strength, mods, 0.55, manDownMult);
-      events=[...goalEventsFor(shA,shB,[46,90]), ...cardEventsFor('second', sentOff)].sort((a,b)=>a.min-b.min);
+      events=[...goalEventsFor(shA,shB,[46,90]), ...cardEventsFor('second', sentOff), ...injuryEventsFor('second', sentOff)].sort((a,b)=>a.min-b.min);
       idx=0; phase='second';
       logEvent("⚪ Começa o 2º tempo.");
       renderLiveMatchPitch();
@@ -2755,7 +3134,7 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
   function afterRegulation(){
     if(!isKnockout || scoreA!==scoreB){ finalize(); return; }
     logEvent("⏱️ Empate! Vai para a prorrogação.");
-    const strength2=teamAStrengthNow(redPenalty, sentOff);
+    const strength2=teamAStrengthNow(redPenalty, new Set([...sentOff, ...injuredThisMatch]));
     const [etA,etB]=simulateSegment(strength2, teamB.strength, mods, 0.32, manDownMult);
     events=goalEventsFor(etA,etB,[91,120]).sort((a,b)=>a.min-b.min);
     idx=0; phase='et'; minute=90;
@@ -2773,10 +3152,33 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
   function finalize(wentToPens, wonByMe){
     if(finished) return; finished=true;
     clockEl.textContent="Fim de jogo";
-    const accelBtn=wrap.querySelector('#lsAccel'); if(accelBtn) accelBtn.disabled=true;
-    const motm=pickMOTM(sentOff); motmTally[motm]=(motmTally[motm]||0)+1;
+    const accelBtn=wrap.querySelector('#lsAccel'); if(accelBtn) accelBtn.remove();
+    const motmC=buildMatchMOTM(scoreA, scoreB, sentOff, teamB, matchGoalsMine, matchGoalsOpp);
+    if(motmC){ motmTally[motmC.name]=(motmTally[motmC.name]||0)+1; }
     bumpSharedCounter('ffm:stats:matches_played');
-    onFinish(scoreA, scoreB, wentToPens ? wonByMe : null);
+    applyFatigueDrift();
+    injuredThisMatch.forEach(name=>{ injuredOut[name]=2; });
+    const motmTierTag=motmC && motmC.tier?`<div class="tier-label ${tierClass(motmC.tier)}">${motmC.tier.toUpperCase()}</div>`:'';
+    const motmPosTxt=motmC?(motmC.nativeGranular||posLabel(motmC.macro)):'';
+    const motmMeta = motmC
+      ? (motmC.side==='mine'
+          ? `${motmPosTxt} · ${countryName(motmC.country)} '${String(motmC.year).slice(2)}`
+          : `${motmPosTxt} · ⚔️ ${teamB.name}`)
+      : '';
+    const overlay=document.createElement('div');
+    overlay.className="motm-overlay"+(motmC && motmC.side==='opp' ? " motm-opp" : "");
+    overlay.innerHTML=`<div class="motm-kicker">⭐ Homem da Partida</div>
+      <div class="motm-star">🏅</div>
+      <div class="motm-name">${motmC?motmC.name:'—'}</div>
+      <div class="motm-meta">${motmMeta}</div>
+      ${motmTierTag}
+      <div class="motm-just">${motmC?motmC.justification:''}</div>
+      <button class="btn btn-primary" id="motmContinueBtn" style="margin-top:12px;">Continuar</button>`;
+    wrap.appendChild(overlay);
+    overlay.scrollIntoView({behavior:'smooth', block:'nearest'});
+    wrap.querySelector('#motmContinueBtn').onclick=()=>{
+      onFinish(scoreA, scoreB, wentToPens ? wonByMe : null);
+    };
   }
 
   wrap.querySelector('#lsAccel').onclick=()=>{
@@ -2784,7 +3186,7 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
     const subPanel=wrap.querySelector('.sub-panel'); if(subPanel) subPanel.remove();
     while(idx<events.length){ applyEvent(events[idx]); idx++; }
     if(phase==='first'){
-      const strength2=teamAStrengthNow(redPenalty, sentOff);
+      const strength2=teamAStrengthNow(redPenalty, new Set([...sentOff, ...injuredThisMatch]));
       const [shA,shB]=simulateSegment(strength2, teamB.strength, mods, 0.55, manDownMult);
       const shEvents=goalEventsFor(shA,shB,[46,90]);
       shEvents.forEach(applyEvent);
@@ -2798,7 +3200,7 @@ function playFullMatch(teamA, teamB, container, onFinish, isKnockout, stadium){
   };
   function resolveAfterAccel(){
     if(!isKnockout || scoreA!==scoreB){ finalize(); return; }
-    const strength2=teamAStrengthNow(redPenalty, sentOff);
+    const strength2=teamAStrengthNow(redPenalty, new Set([...sentOff, ...injuredThisMatch]));
     const [etA,etB]=simulateSegment(strength2, teamB.strength, mods, 0.32, manDownMult);
     goalEventsFor(etA,etB,[91,120]).forEach(applyEvent);
     if(scoreA!==scoreB){ logEvent("Decidido na prorrogação."); finalize(); return; }
