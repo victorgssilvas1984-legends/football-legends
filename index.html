@@ -1480,7 +1480,7 @@ async function bumpSharedCounter(key){
     }catch(e){ /* analytics é best-effort, nunca trava o jogo */ }
   }
   try{
-    await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${encodeURIComponent(key)}/up`);
+    await fetch(`/api/counter?key=${encodeURIComponent(key)}&op=up`);
   }catch(e){ /* sem conexão com o contador externo — segue o jogo normalmente */ }
 }
 async function readSharedCounter(key){
@@ -1491,7 +1491,7 @@ async function readSharedCounter(key){
     }catch(e){ return 0; }
   }
   try{
-    const res = await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${encodeURIComponent(key)}`);
+    const res = await fetch(`/api/counter?key=${encodeURIComponent(key)}`);
     const data = await res.json();
     return data.count || 0;
   }catch(e){ return 0; }
